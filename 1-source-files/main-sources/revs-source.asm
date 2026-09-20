@@ -34831,14 +34831,27 @@ ENDIF
                         \ (SHEILA &4E) bits 6 and 7 (i.e. enable the Timer1
                         \ interrupt from the System VIA)
 
- LDA #&D4               \ Set 6522 User VIA T1C-L timer 1 low-order counter
+ LDA #&D4               \ Adaptive *TV interlace support: this one-time initial
+                        \ reload (&11D4, 4564) phase-locks the section chain to
+                        \ the screen redraw, measuring from the hardware vsync
+                        \ detected at cust3 above. In interlace sync the 6845
+                        \ shifts that sync pulse by half a scan line on
+                        \ alternate fields, and in non-interlace it does not,
+                        \ so the loader (TVFIX in revs-tvfix.asm) patches this
+                        \ operand byte to &B4, moving the anchor half a scan
+                        \ line earlier to &11B4 (4532). That is a fixed phase
+                        \ offset, separate from the accumulating drift that
+                        \ the timer 1 latch below suffers from - both need
+                        \ correcting, for different reasons
  STA SHEILA+&64         \ (SHEILA &64) to &D4 (so this sets the low-order
                         \ counter but does not start counting until the
                         \ high-order counter is set)
 
  LDA #&11               \ Set 6522 User VIA T1C-H timer 1 high-order counter
- STA SHEILA+&65         \ (SHEILA &45) to &11 to start the T1 counter
-                        \ counting down from &11D4 (4464) at a rate of 1 MHz
+ STA SHEILA+&65         \ (SHEILA &45) to start the T1 counter counting down
+                        \ from &11D4, the one-time phase anchor set right after
+                        \ the real hardware vsync is detected, separate from
+                        \ the steady-state per-section reload values
 
  LDA #&01               \ Set 6522 System VIA T1L-L timer 1 low-order latches
  STA SHEILA+&46         \ to &01 (so this sets the low-order counter but does
@@ -34868,6 +34881,28 @@ ENDIF
                         \ to &4E (so this sets the timer to &4E1E (19998) but
                         \ does not start counting until the current timer has
                         \ run down)
+                        \
+                        \ Adaptive *TV interlace support: a 6522 in continuous
+                        \ mode reloads with N+2, so this latch free-runs at
+                        \ exactly 20000 ticks, i.e. one interlaced frame of
+                        \ 312.5 scan lines. A non-interlaced frame is 312 scan
+                        \ lines (19968 ticks), so when *TV is non-interlaced
+                        \ this latch is 32 ticks slow every frame.
+                        \
+                        \ That matters because this latch, not the anchor
+                        \ above, is what times timer 1 during startup, before
+                        \ the five-section chain takes over - so the error
+                        \ accumulates once per startup frame, and startup takes
+                        \ a different number of frames on each track depending
+                        \ on how much track data has to be loaded and
+                        \ processed. The result is that the section boundaries
+                        \ end up in a different place on each track, which is
+                        \ why this looked like a per-track bug even though
+                        \ every constant involved is identical.
+                        \
+                        \ The loader (TVFIX in revs-tvfix.asm) patches both
+                        \ operand bytes to &4DFE (19966) when *TV is
+                        \ non-interlaced, which removes the drift entirely
 
  LDA #HI(ScreenHandler) \ Set the IRQ1V vector to ScreenHandler, so the
  STA IRQ1V+1            \ ScreenHandler routine is now the interrupt handler
@@ -34967,7 +35002,11 @@ ENDIF
 
  LDA #&C4               \ Set (X A) = &0FC4 to latch into the User VIA timer 1,
  LDX #&0F               \ so on the next timer loop it counts down from &0FC4
-                        \ (4036)
+                        \ (4036) - reverted to the original value; the -32 tick
+                        \ frame-period correction has moved to the last section
+                        \ in the chain (hand16 below) instead of the first, so
+                        \ it only affects the wrap-around to the next frame
+                        \ rather than shifting every other section's timing
 
  BNE hand13             \ Jump to hand13 to latch (X A) into User VIA timer 1
                         \ and return from the subroutine (this BNE is
@@ -35115,9 +35154,14 @@ ENDIF
  STA SHEILA+&69         \ (SHEILA &69) to &FF to start the T2 counter
                         \ counting down from &FFxx at a rate of 1 MHz
 
- LDA #&16               \ Set (X A) = &0B16 to latch into the User VIA timer 1,
- LDX #&0B               \ so on the next timer loop it counts down from &0B16
-                        \ (2838)
+ LDA #&16               \ Adaptive *TV interlace support: &0B16 (2838) is the
+                        \ value needed when *TV is interlaced (the default
+                        \ assumed here). For non-interlace, the loader patches
+                        \ this operand byte and the next one to &0AF6 (2806, a
+                        \ 32-tick reduction) - see the phase anchor near the
+                        \ top of SetCustomScreen for the full explanation
+ LDX #&0B               \ Set (X A) = &0B16 to latch into the User VIA timer 1,
+                        \ so on the next timer loop it counts down from &0B16
 
 .hand13
 
@@ -35233,6 +35277,16 @@ ENDIF
                         \ adjusted for our custom screen's vertical sync
 
  EQUB %00000001         \ Set 6845 register R8 = %00000001
+                        \
+                        \ Adaptive *TV interlace support: this value is simply
+                        \ inherited unchanged from standard mode 5, and was
+                        \ never a deliberate choice for this custom screen
+                        \ mode. The loader (RunRevs in revs-loader.asm) patches
+                        \ this byte to %00000000 after loading this file into
+                        \ RAM but before running it, if *TV (at &0291) is
+                        \ currently set to non-interlace - alongside the two
+                        \ timer reloads patched at the same time (see the
+                        \ phase anchor near the top of SetCustomScreen)
                         \
                         \ This is the "interlace and display" register, which
                         \ sets the following, reading from bit 7 to bit 0:

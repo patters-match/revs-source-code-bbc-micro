@@ -247,11 +247,19 @@
 
     LDX #LO(runRevs)
     LDY #HI(runRevs)
-    JMP oscli
+    JMP oscli               \ Adaptive *TV interlace support: this used to
+                             \ *RUN Revs2 directly. It now *RUNs TVFIX instead
+                             \ (see revs-tvfix.asm), a small standalone binary
+                             \ that checks the current *TV setting, patches
+                             \ Revs2 to match if needed, and then *RUNs Revs2
+                             \ itself - all from outside the address range
+                             \ Revs2 occupies once loaded, which this code
+                             \ can't do directly, since it executes from
+                             \ &2000, inside that range
 
 .runRevs
 
-    EQUS "*R.Revs2"
+    EQUS "*R.TVFIX"
     EQUB 13
 
     EQUB &00, &00, &00, &00, &00, &00, &00, &00, &00, &00, &00, &00

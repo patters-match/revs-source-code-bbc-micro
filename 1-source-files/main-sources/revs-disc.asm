@@ -46,6 +46,7 @@ IF _ACORNSOFT
  PUTFILE "3-assembled-output/Revs1.bin", "Revs1", &002000, &002000
  PUTFILE "3-assembled-output/Silverstone.bin", "Silvers", &0070DB, &0070DB
  PUTFILE "3-assembled-output/Revs2.bin", "Revs2", &001200, &001200
+ PUTFILE "3-assembled-output/TVFIX.bin", "TVFIX", &007000, &007000
 
 ELIF _4TRACKS
 
@@ -57,6 +58,7 @@ ELIF _4TRACKS
  PUTFILE "3-assembled-output/OultonPark.bin", "O", &0070DB, &0070DB
  PUTFILE "3-assembled-output/Snetterton.bin", "S", &0070DB, &0070DB
  PUTFILE "3-assembled-output/Revs2.bin", "Revs2", &001200, &001200
+ PUTFILE "3-assembled-output/TVFIX.bin", "TVFIX", &007000, &007000
 
 ELIF _SUPERIOR
 
@@ -69,6 +71,7 @@ ELIF _SUPERIOR
  PUTFILE "3-assembled-output/Snetterton.bin", "SNETTER", &0070DB, &0070DB
  PUTFILE "3-assembled-output/Silverstone.bin", "SILVER", &0070DB, &0070DB
  PUTFILE "3-assembled-output/Revs2.bin", "REVS2", &001200, &001200
+ PUTFILE "3-assembled-output/TVFIX.bin", "TVFIX", &007000, &007000
 
 ELIF _REVSPLUS
 
@@ -82,6 +85,7 @@ ELIF _REVSPLUS
  PUTFILE "3-assembled-output/Silverstone.bin", "SILVER", &0070DB, &0070DB
  PUTFILE "3-assembled-output/Nurburgring.bin", "NURBURG", &0070DB, &0070DB
  PUTFILE "3-assembled-output/Revs2.bin", "REVS2", &001200, &001200
+ PUTFILE "3-assembled-output/TVFIX.bin", "TVFIX", &007000, &007000
  PUTFILE "1-source-files/text-files/READMEPLUS.bin", "README", &FFFFFF, &FFFFFF
 
 ENDIF
