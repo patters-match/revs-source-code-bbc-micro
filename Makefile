@@ -50,6 +50,7 @@ all:
 	$(BEEBASM) -i 1-source-files/main-sources/revs-nurburgring.asm -v >> 3-assembled-output/compile.txt
 	$(BEEBASM) -i 1-source-files/main-sources/revs-loader.asm -v >> 3-assembled-output/compile.txt
 	$(BEEBASM) -i 1-source-files/main-sources/revs-source.asm -v >> 3-assembled-output/compile.txt
+	$(BEEBASM) -i 1-source-files/main-sources/revs-tvpatch.asm -v >> 3-assembled-output/compile.txt
 	$(PYTHON) 2-build-files/revs-checksum.py
 	$(BEEBASM) -i 1-source-files/main-sources/revs-disc.asm -do 5-compiled-game-discs/revs$(suffix).ssd -opt 3 -title "CAR"
 ifneq ($(verify), no)

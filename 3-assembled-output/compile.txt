@@ -24830,3 +24830,27 @@ End macro DRAW_BYTE
      16DA   18
      16DB   69
 Saving file '3-assembled-output/Revs2.bin'
+.Start
+     7000   A2 2D      LDX #&2D
+     7002   A0 70      LDY #&70
+     7004   20 F7 FF   JSR &FFF7
+     7007   AD 91 02   LDA &0291
+     700A   F0 1E      BEQ &702A
+     700C   A9 FE      LDA #&FE
+     700E   8D 3E 4E   STA &4E3E
+     7011   A9 4D      LDA #&4D
+     7013   8D 46 4E   STA &4E46
+     7016   A9 B4      LDA #&B4
+     7018   8D 2A 4E   STA &4E2A
+     701B   A9 F6      LDA #&F6
+     701D   8D FE 4E   STA &4EFE
+     7020   A9 0A      LDA #&0A
+     7022   8D 00 4F   STA &4F00
+     7025   A9 00      LDA #&00
+     7027   8D 17 4F   STA &4F17
+.Go
+     702A   4C 00 12   JMP &1200
+.runRevs
+     702D   2A 4C 4F ...
+     7038   0D
+Saving file '3-assembled-output/Revs2Patch.bin'
